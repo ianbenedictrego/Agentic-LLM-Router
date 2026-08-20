@@ -221,25 +221,4 @@ Agentic LLM Router/
 └── .env                    # Local secrets (contains exposed keys — rotate before reuse)
 ```
 
----
 
-## Limitations
-
-- No API key / auth layer on the `/route` endpoint itself — anyone who can reach the service can call it.
-- No Prometheus or other metrics/observability instrumentation.
-- No automated test suite — `app/test.py` is a manual Redis connectivity check, not a pytest suite.
-- Retry logic on evaluation failure is capped at exactly one retry, always against `DEFAULT_MODEL`.
-- The `MODEL_MAP` doesn't cover every `(task_type, complexity)` combination; unmapped combinations silently fall back to `DEFAULT_MODEL`.
-- `graph.py` currently has a module-level `workflow.invoke(...)` call with a hardcoded sample query — this runs the graph (and hits both live LLM APIs and Redis) on import, which will fire every time `main.py` imports `graph`.
-- The `.env` in this archive contains real, exposed credentials that must be rotated before any deployment or sharing.
-
----
-
-## Future Improvements
-
-- Add API key auth to the `/route` endpoint.
-- Add Prometheus (or similar) metrics for cache hit rate, routing strategy distribution, and latency.
-- Remove the module-level `workflow.invoke(...)` debug call from `graph.py`.
-- Add a Dockerfile / docker-compose (including a Redis service) for reproducible deployment.
-- Add an automated test suite covering the security filter, cache hit/miss paths, and routing decisions.
-- Make Redis host/port/TTL configurable via environment variables instead of hardcoded values.
