@@ -264,15 +264,3 @@ Agentic-LLM-Router/
 ├── .gitignore
 └── requirements.txt        # Python dependencies
 ```
-
-## Current Development Status
-
-- [x] FastAPI endpoint for the routing workflow
-- [x] LangGraph-based security, cache, analysis, generation, and evaluation nodes
-- [x] Groq and Gemini model integration
-- [x] Redis response caching with a one-hour TTL
-- [x] Dockerfile for the FastAPI application
-- [x] Docker Compose setup for FastAPI and Redis
-- [x] Environment-based Redis host and port configuration
-- [ ] LangSmith tracing configuration and dashboard verification
-- [ ] Cloud deployment
