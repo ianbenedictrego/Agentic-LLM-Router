@@ -1,63 +1,34 @@
 # Agentic LLM Router
 
-A LangGraph-based query router exposed as a FastAPI service. Each
-incoming query passes through a stateful workflow that screens for
-suspicious input, checks Redis for a previously approved response,
-classifies the query, selects an LLM, generates an answer, and evaluates
-the result before caching it.
+A LangGraph-based query router exposed as a FastAPI service. Each incoming query passes through a stateful workflow that screens for suspicious input, checks Redis for a previously approved response, classifies the query, selects an LLM, generates an answer, and evaluates the result before caching it.
 
-The project supports local development and containerized execution with
-Docker Compose.
+The project supports local development and containerized execution with Docker Compose.
 
 ## Features
 
-- **Security screening:** Rejects empty queries, queries longer than
-  1,000 characters, and inputs matching selected prompt-injection or
-  secret-exfiltration patterns.
-- **LLM-based routing:** Uses structured output to classify queries by
-  task type and complexity.
-- **Model selection:** Routes requests between Groq and Google Gemini
-  according to the classification.
-- **Fallback handling:** Falls back to the other configured provider
-  if generation fails.
-- **Response evaluation:** Uses heuristic checks and an LLM-as-judge
-  evaluation.
-- **Retry handling:** Retries generation at most once when evaluation
-  fails.
-- **Redis caching:** Caches responses that pass evaluation for one
-  hour.
+- **Security screening:** Rejects empty queries, queries longer than 1,000 characters, and inputs matching selected prompt-injection or secret-exfiltration patterns.
+- **LLM-based routing:** Uses structured output to classify queries by task type and complexity.
+- **Model selection:** Routes requests between Groq and Google Gemini according to the classification.
+- **Fallback handling:** Falls back to the other configured provider if generation fails.
+- **Response evaluation:** Uses heuristic checks and an LLM-as-judge evaluation.
+- **Retry handling:** Retries generation at most once when evaluation fails.
+- **Redis caching:** Caches responses that pass evaluation for one hour.
 - **FastAPI interface:** Exposes the workflow through `POST /route`.
-- **Docker Compose:** Runs the FastAPI application and Redis as
-  separate services.
+- **Docker Compose:** Runs the FastAPI application and Redis as separate services.
 
 ## Tech Stack
 
----
-
-Layer Technology
-
----
-
-API framework FastAPI, Uvicorn
-
-Workflow orchestration LangGraph (`StateGraph`)
-
-Data validation / structured output Pydantic
-
-LLM integrations LangChain, `langchain-groq`,
-`langchain-google-genai`
-
-Groq model `openai/gpt-oss-20b`
-
-Google model `gemini-3.5-flash-lite`
-
-Caching Redis (`redis-py`)
-
-Configuration `python-dotenv`
-
-Containerization Docker, Docker Compose
-
----
+| Layer                               | Technology                                            |
+| ----------------------------------- | ----------------------------------------------------- |
+| API framework                       | FastAPI, Uvicorn                                      |
+| Workflow orchestration              | LangGraph (`StateGraph`)                              |
+| Data validation / structured output | Pydantic                                              |
+| LLM integrations                    | LangChain, `langchain-groq`, `langchain-google-genai` |
+| Groq model                          | `openai/gpt-oss-20b`                                  |
+| Google model                        | `gemini-3.5-flash-lite`                               |
+| Caching                             | Redis (`redis-py`)                                    |
+| Configuration                       | `python-dotenv`                                       |
+| Containerization                    | Docker, Docker Compose                                |
 
 ## System Architecture
 
@@ -80,75 +51,41 @@ flowchart TD
 
 ## Workflow
 
-The graph is implemented in `app/graph.py` using
-`StateGraph(RouterState)`.
+The graph is implemented in `app/graph.py` using `StateGraph(RouterState)`.
 
-1.  **Security:** Normalizes the query and checks for empty input,
-    excessive length, and configured suspicious patterns.
-2.  **Cache lookup:** Normalizes the query, creates a SHA-256 cache key,
-    and checks Redis. A cache hit returns the cached answer without
-    calling the LLMs.
-3.  **Analysis:** Uses Groq structured output to classify the query as
-    `factual`, `reasoning`, `code`, `creative`, or `conversational`, and
-    assigns `low`, `medium`, or `high` complexity.
-4.  **Model selection:** Uses `MODEL_MAP` to select the model for the
-    task and complexity. If classification fails, the default model is
-    selected.
-5.  **Generation:** Calls the selected provider. If generation fails,
-    the router attempts the other configured provider.
-6.  **Evaluation:** Applies heuristic checks for empty, too-short, or
-    degenerate output. If those checks pass, an LLM judge assesses
-    relevance and quality.
-7.  **Retry and caching:** If evaluation fails, the graph can retry
-    generation once using the fallback model. Responses that pass
-    evaluation are cached in Redis for 3,600 seconds.
+1. **Security:** Normalizes the query and checks for empty input, excessive length, and configured suspicious patterns.
+2. **Cache lookup:** Normalizes the query, creates a SHA-256 cache key, and checks Redis. A cache hit returns the cached answer without calling the LLMs.
+3. **Analysis:** Uses Groq structured output to classify the query as `factual`, `reasoning`, `code`, `creative`, or `conversational`, and assigns `low`, `medium`, or `high` complexity.
+4. **Model selection:** Uses `MODEL_MAP` to select the model for the task and complexity. If classification fails, the default model is selected.
+5. **Generation:** Calls the selected provider. If generation fails, the router attempts the other configured provider.
+6. **Evaluation:** Applies heuristic checks for empty, too-short, or degenerate output. If those checks pass, an LLM judge assesses relevance and quality.
+7. **Retry and caching:** If evaluation fails, the graph can retry generation once using the fallback model. Responses that pass evaluation are cached in Redis for 3,600 seconds.
 
 ## Model Routing
 
 The configured model identifiers are:
 
----
+| Provider      | Model ID                | Role                                                               |
+| ------------- | ----------------------- | ------------------------------------------------------------------ |
+| Groq          | `openai/gpt-oss-20b`    | Query classification, selected response generation, and evaluation |
+| Google Gemini | `gemini-3.5-flash-lite` | Response generation and fallback                                   |
 
-Provider Model ID Role
+The exact model selected for a request depends on the `(task_type, complexity)` mapping in `MODEL_MAP`. The default model is Gemini Flash-Lite.
 
----
-
-Groq `openai/gpt-oss-20b` Query classification,
-selected response
-generation, and
-evaluation
-
-Google Gemini `gemini-3.5-flash-lite` Response generation and
-fallback
-
----
-
-The exact model selected for a request depends on the
-`(task_type, complexity)` mapping in `MODEL_MAP`. The default model is
-Gemini Flash-Lite.
-
-Provider availability, free-tier quotas, and pricing are controlled by
-the providers and may change. Check the provider dashboards for current
-limits.
+Provider availability, free-tier quotas, and pricing are controlled by the providers and may change. Check the provider dashboards for current limits.
 
 ## Redis Caching
 
 Redis is part of the workflow rather than an optional add-on.
 
-- **Cache key:** The query is lower-cased, whitespace-normalized,
-  hashed with SHA-256, and prefixed with `llm_router:`.
-- **Read path:** Redis is checked after security screening and before
-  query classification.
-- **Write path:** A response is cached only after it passes the
-  evaluation stage.
+- **Cache key:** The query is lower-cased, whitespace-normalized, hashed with SHA-256, and prefixed with `llm_router:`.
+- **Read path:** Redis is checked after security screening and before query classification.
+- **Write path:** A response is cached only after it passes the evaluation stage.
 - **TTL:** Cached responses expire after 3,600 seconds (one hour).
-- **Docker networking:** In Docker Compose, the application connects
-  to Redis using the service hostname `redis` and port `6379`.
-- **Local development:** When running the API directly on your
-  machine, the default Redis host is `localhost`.
+- **Docker networking:** In Docker Compose, the application connects to Redis using the service hostname `redis` and port `6379`.
+- **Local development:** When running the API directly on your machine, the default Redis host is `localhost`.
 
-The Redis host and port are configurable through `REDIS_HOST` and
-`REDIS_PORT`.
+The Redis host and port are configurable through `REDIS_HOST` and `REDIS_PORT`.
 
 ## Setup and Running
 
@@ -156,13 +93,11 @@ The Redis host and port are configurable through `REDIS_HOST` and
 
 For the recommended Docker Compose setup:
 
-- Docker Desktop (Windows/macOS) or Docker Engine with the Docker
-  Compose plugin (Linux)
+- Docker Desktop (Windows/macOS) or Docker Engine with the Docker Compose plugin (Linux)
 - A Groq API key
 - A Google Gemini API key
 
-For running the application directly with Python, use Python 3.11 and a
-locally accessible Redis server.
+For running the application directly with Python, use Python 3.11 and a locally accessible Redis server.
 
 ### 1. Clone the repository
 
@@ -180,12 +115,9 @@ GROQ_API_KEY=your_groq_api_key
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
-Do not commit `.env` or expose API keys in source control. The
-repository's `.gitignore` should exclude it.
+Do not commit `.env` or expose API keys in source control. The repository's `.gitignore` should exclude it.
 
-The application reads `GEMINI_API_KEY` and `GROQ_API_KEY`. For Docker
-Compose, `REDIS_HOST` and `REDIS_PORT` are supplied to the application
-container by the Compose configuration.
+The application reads `GEMINI_API_KEY` and `GROQ_API_KEY`. For Docker Compose, `REDIS_HOST` and `REDIS_PORT` are supplied to the application container by the Compose configuration.
 
 ### 3. Start with Docker Compose (recommended)
 
@@ -198,8 +130,7 @@ docker compose up --build
 This builds the FastAPI image and starts both services:
 
 - **app:** FastAPI application, exposed on host port `8000`.
-- **redis:** Redis 7 Alpine container, available to the app at
-  `redis:6379` on the Compose network.
+- **redis:** Redis 7 Alpine container, available to the app at `redis:6379` on the Compose network.
 
 Open the interactive API documentation:
 
@@ -236,9 +167,7 @@ To stop the services:
 docker compose down
 ```
 
-Redis data is stored in the named Docker volume `redis_data` and is
-preserved when you run `docker compose down`. To remove the volume and
-its data as well, run:
+Redis data is stored in the named Docker volume `redis_data` and is preserved when you run `docker compose down`. To remove the volume and its data as well, run:
 
 ```bash
 docker compose down -v
@@ -246,8 +175,7 @@ docker compose down -v
 
 ### 4. Run locally without Docker (optional)
 
-If you prefer to run FastAPI directly, create and activate a virtual
-environment from the repository root.
+If you prefer to run FastAPI directly, create and activate a virtual environment from the repository root.
 
 Windows PowerShell:
 
@@ -276,8 +204,7 @@ cd app
 uvicorn main:app --reload
 ```
 
-When running locally, the default Redis connection is `localhost:6379`.
-You can override it by setting `REDIS_HOST` and `REDIS_PORT`.
+When running locally, the default Redis connection is `localhost:6379`. You can override it by setting `REDIS_HOST` and `REDIS_PORT`.
 
 ## API Usage
 
@@ -314,21 +241,13 @@ Example response shape (values are illustrative):
 }
 ```
 
-The selected model, classification, confidence, routing strategy,
-evaluation, retry count, and error details are returned as workflow
-metadata.
+The selected model, classification, confidence, routing strategy, evaluation, retry count, and error details are returned as workflow metadata.
 
 ## Security Notes
 
-The security node currently implements a basic pattern-based input
-filter. It rejects empty queries, queries exceeding 1,000 characters,
-and queries matching configured patterns related to instruction
-overrides, prompt disclosure, and API-key disclosure.
+The security node currently implements a basic pattern-based input filter. It rejects empty queries, queries exceeding 1,000 characters, and queries matching configured patterns related to instruction overrides, prompt disclosure, and API-key disclosure.
 
-This is a first layer of screening, not a comprehensive prompt-injection
-or application-security solution. Do not treat it as a substitute for
-authorization, secrets management, provider-side safeguards, or broader
-security testing.
+This is a first layer of screening, not a comprehensive prompt-injection or application-security solution. Do not treat it as a substitute for authorization, secrets management, provider-side safeguards, or broader security testing.
 
 ## Repository Structure
 
@@ -349,8 +268,7 @@ Agentic-LLM-Router/
 ## Current Development Status
 
 - [x] FastAPI endpoint for the routing workflow
-- [x] LangGraph-based security, cache, analysis, generation, and
-      evaluation nodes
+- [x] LangGraph-based security, cache, analysis, generation, and evaluation nodes
 - [x] Groq and Gemini model integration
 - [x] Redis response caching with a one-hour TTL
 - [x] Dockerfile for the FastAPI application
