@@ -113,7 +113,7 @@ source venv/bin/activate
 ### 3. Install dependencies
 
 ```bash
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 
 This installs `langchain`, `langchain-core`, `langchain-google-genai`, `langchain-groq`, `langgraph`, `python-dotenv`, `fastapi`, `uvicorn`, `pydantic`, `langsmith`, `google-genai`, and `redis`.
