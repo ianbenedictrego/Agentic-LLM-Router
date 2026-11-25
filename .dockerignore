@@ -4,3 +4,8 @@ __pycache__/
 *.pyc
 .git/
 .gitignore
+# Not needed inside the image (the Dockerfile copies only app/ and requirements.txt)
+bench/
+.vscode/
+pyrightconfig.json
+README.md

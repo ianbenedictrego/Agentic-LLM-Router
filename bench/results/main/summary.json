@@ -1,0 +1,177 @@
+{
+  "modes": {
+    "always_gemini": {
+      "requests": 60,
+      "succeeded": 22,
+      "success_rate": 0.3667,
+      "quality": {
+        "judged": 17,
+        "pass_rate": 0.9412,
+        "good_rate": 0.9412
+      },
+      "answer_latency_ms": {
+        "avg": 3490.5468181818183,
+        "p50": 1524.99,
+        "p95": 12128.66
+      },
+      "e2e_latency_ms": {
+        "avg": 3806.084090909091,
+        "p50": 1867.95,
+        "p95": 12636.17
+      },
+      "tokens_per_query": {
+        "serving": 206.6818181818182,
+        "total": 580.4545454545455
+      },
+      "est_cost_per_1k_queries_usd": {
+        "serving": 0.4857,
+        "total": 0.5364
+      },
+      "llm_calls_per_request": 1.3666666666666667,
+      "model_mix": {
+        "gemini-3.5-flash-lite": 22
+      },
+      "reliability": {
+        "fallbacks": 0,
+        "fallback_saves": 0,
+        "fallback_reasons": {},
+        "retries": 0,
+        "rate_limited_llm_calls": 5,
+        "requests_needing_client_retry": 0
+      }
+    },
+    "always_groq": {
+      "requests": 60,
+      "succeeded": 49,
+      "success_rate": 0.8167,
+      "quality": {
+        "judged": 27,
+        "pass_rate": 0.9259,
+        "good_rate": 0.8889
+      },
+      "answer_latency_ms": {
+        "avg": 1398.980612244898,
+        "p50": 1274.8,
+        "p95": 2604.35
+      },
+      "e2e_latency_ms": {
+        "avg": 1655.5289795918368,
+        "p50": 1474.81,
+        "p95": 3004.94
+      },
+      "tokens_per_query": {
+        "serving": 1156.3061224489795,
+        "total": 1583.1632653061224
+      },
+      "est_cost_per_1k_queries_usd": {
+        "serving": 0.3267,
+        "total": 0.377
+      },
+      "llm_calls_per_request": 1.8,
+      "model_mix": {
+        "openai/gpt-oss-20b": 49
+      },
+      "reliability": {
+        "fallbacks": 0,
+        "fallback_saves": 0,
+        "fallback_reasons": {},
+        "retries": 0,
+        "rate_limited_llm_calls": 28,
+        "requests_needing_client_retry": 16
+      }
+    },
+    "router": {
+      "requests": 60,
+      "succeeded": 58,
+      "success_rate": 0.9667,
+      "quality": {
+        "judged": 33,
+        "pass_rate": 1.0,
+        "good_rate": 0.9394
+      },
+      "answer_latency_ms": {
+        "avg": 9634.421206896553,
+        "p50": 4290.41,
+        "p95": 32111.12
+      },
+      "e2e_latency_ms": {
+        "avg": 9922.630172413794,
+        "p50": 4672.85,
+        "p95": 32325.78
+      },
+      "tokens_per_query": {
+        "serving": 1488.5862068965516,
+        "total": 1976.2586206896551
+      },
+      "est_cost_per_1k_queries_usd": {
+        "serving": 0.6992,
+        "total": 0.7537
+      },
+      "llm_calls_per_request": 3.4833333333333334,
+      "model_mix": {
+        "openai/gpt-oss-20b": 39,
+        "gemini-3.5-flash-lite": 19
+      },
+      "reliability": {
+        "fallbacks": 24,
+        "fallback_saves": 22,
+        "fallback_reasons": {
+          "unavailable": 21,
+          "null": 2,
+          "rate_limit": 1
+        },
+        "retries": 3,
+        "rate_limited_llm_calls": 41,
+        "requests_needing_client_retry": 7,
+        "success_rate_without_fallback": 0.6
+      }
+    }
+  },
+  "comparisons": {
+    "router_vs_always_groq": {
+      "paired_queries": 49,
+      "serving_cost_change_pct": 105.8,
+      "serving_tokens_change_pct": 15.9,
+      "answer_latency_p50_change_pct": 154.7,
+      "answer_latency_p95_change_pct": 1164.5,
+      "answer_latency_avg_change_pct": 512.1,
+      "pass_rate_router": 1.0,
+      "pass_rate_baseline": 0.9259,
+      "pass_rate_delta_pp": 7.4
+    },
+    "router_vs_always_gemini": {
+      "paired_queries": 22,
+      "serving_cost_change_pct": -22.2,
+      "serving_tokens_change_pct": 201.0,
+      "answer_latency_p50_change_pct": -12.9,
+      "answer_latency_p95_change_pct": -29.6,
+      "answer_latency_avg_change_pct": 4.1,
+      "pass_rate_router": 1.0,
+      "pass_rate_baseline": 0.9412,
+      "pass_rate_delta_pp": 5.9
+    }
+  },
+  "classifier": {
+    "n": 45,
+    "task_type_accuracy": 0.8222,
+    "complexity_accuracy": 0.7556,
+    "joint_accuracy": 0.6222,
+    "task_type_confusion": {
+      "factual": {
+        "factual": 10,
+        "reasoning": 1
+      },
+      "reasoning": {
+        "factual": 5,
+        "reasoning": 6
+      },
+      "code": {
+        "code": 10,
+        "factual": 2
+      },
+      "creative": {
+        "creative": 11
+      }
+    }
+  }
+}

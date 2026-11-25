@@ -1,3 +1,28 @@
+# Secrets (.env.example is the committed template)
 .env
-.venv
-__pycache__
+
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs and local Redis dumps
+*.log
+dump.rdb
+
+# Benchmark output: keep the summaries, ignore the raw per-request files.
+# Raw .jsonl files hold full model responses and provider error messages
+# (which can include your provider account/organization IDs).
+bench/results/**/*.jsonl
+bench/results/smoke/

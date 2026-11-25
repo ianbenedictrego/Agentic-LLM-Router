@@ -9,11 +9,13 @@ The project supports local development and containerized execution with Docker C
 - **Security screening:** Rejects empty queries, queries longer than 1,000 characters, and inputs matching selected prompt-injection or secret-exfiltration patterns.
 - **LLM-based routing:** Uses structured output to classify queries by task type and complexity.
 - **Model selection:** Routes requests between Groq and Google Gemini according to the classification.
-- **Fallback handling:** Falls back to the other configured provider if generation fails.
+- **Fallback handling:** Falls back to the other configured provider if generation fails. In router mode Gemini is called with no client-side retries, so an overloaded Gemini (503) hands over to Groq at once instead of retrying with backoff first. The single-model baseline keeps two retries, because it has nothing to fall back to.
 - **Response evaluation:** Uses heuristic checks and an LLM-as-judge evaluation.
 - **Retry handling:** Retries generation at most once when evaluation fails.
 - **Redis caching:** Caches responses that pass evaluation for one hour.
 - **FastAPI interface:** Exposes the workflow through `POST /route`.
+- **Observability:** Records tokens, latency per node, estimated cost, fallbacks and rate limits for every LLM call; `GET /metrics` serves live counters, and LangSmith tracing can be switched on with environment variables.
+- **Benchmark suite:** Scripts in `bench/` measure the router against single-model baselines, the cache hit rate, fallback under a simulated outage, classifier accuracy, judge agreement and the security filter.
 - **Docker Compose:** Runs the FastAPI application and Redis as separate services.
 
 ## Tech Stack
@@ -115,9 +117,9 @@ GROQ_API_KEY=your_groq_api_key
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
-Do not commit `.env` or expose API keys in source control. The repository's `.gitignore` should exclude it.
+Do not commit `.env` or expose API keys in source control. The repository's `.gitignore` should exclude it. See `.env.example` for the optional LangSmith and benchmark settings.
 
-The application reads `GEMINI_API_KEY` and `GROQ_API_KEY`. For Docker Compose, `REDIS_HOST` and `REDIS_PORT` are supplied to the application container by the Compose configuration.
+The application reads `GROQ_API_KEY` and `GEMINI_API_KEY` (or `GOOGLE_API_KEY`). For Docker Compose, `REDIS_HOST` and `REDIS_PORT` are supplied to the application container by the Compose configuration.
 
 ### 3. Start with Docker Compose (recommended)
 
@@ -237,11 +239,72 @@ Example response shape (values are illustrative):
   "response": "Generated answer...",
   "evaluation": "pass:good",
   "retry_count": 0,
-  "error": ""
+  "error": "",
+  "fallback_used": false,
+  "fallback_reason": "",
+  "rate_limited": false,
+  "latency_ms": 2841.5,
+  "node_latency_ms": {"security": 0.1, "cache": 0.9, "analyze": 412.3, "generate": 1903.2, "evaluate": 524.8},
+  "llm_calls": [
+    {"role": "classify", "model": "openai/gpt-oss-20b", "provider": "groq", "input_tokens": 312, "output_tokens": 61, "latency_ms": 410.2, "est_cost_usd": 0.0000417, "ok": true, "error_type": ""}
+  ],
+  "usage": {"llm_call_count": 3, "input_tokens": 1450, "output_tokens": 820, "est_cost_usd": 0.00035, "by_role": {}}
 }
 ```
 
-The selected model, classification, confidence, routing strategy, evaluation, retry count, and error details are returned as workflow metadata.
+The selected model, classification, confidence, routing strategy, evaluation, retry count, and error details are returned as workflow metadata, along with per-call usage.
+
+Optional request fields:
+
+| Field | Default | Purpose |
+|---|---|---|
+| `mode` | `router` | `always_groq` / `always_gemini` run a single-model baseline (no classifier, fallback, retry or cache) |
+| `use_cache` | `true` | Set `false` to bypass Redis |
+| `record_stats` | `true` | Set `false` to keep the request out of `GET /metrics` |
+| `fail_provider` | `""` | `groq` or `gemini` simulates that provider being down (requires `BENCHMARK_MODE=true`) |
+
+### `GET /metrics`
+
+Live counters stored in Redis: cache hit rate, estimated LLM calls, tokens and cost avoided by the cache, LLM calls and tokens by model, rate-limited calls, fallbacks (and how many saved the request), retries, judge pass/fail and p50/p95 latency for cached and uncached requests.
+
+## Observability and Cost Estimates
+
+The project runs on free tiers, so actual spend is $0. To compare designs anyway, every LLM call records its tokens and an **estimated cost at paid-tier list prices** (`app/pricing.py`, with sources and the date they were checked). Free tiers are limited by quota, not money, so the benchmarks also report tokens, LLM calls and rate-limit errors directly.
+
+### LangSmith tracing
+
+Set these in `.env` (the free Developer plan is enough):
+
+```env
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=your_langsmith_api_key
+LANGSMITH_PROJECT=agentic-llm-router
+```
+
+Each request is traced as an `llm-router` run tagged with its mode, and every LLM call is named `<role>:<model>` (for example `classify:openai/gpt-oss-20b`) and tagged with its role, provider and mode.
+
+## Benchmarking
+
+All scripts are in `bench/`, use only the Python standard library, and call the running API over HTTP. Results are written to `bench/results/<run-name>/`.
+
+Start the stack with `BENCHMARK_MODE=true` in `.env`, then:
+
+| Script | Measures |
+|---|---|
+| `python bench/run_benchmark.py --run-name main` | Router vs `always_groq` vs `always_gemini` on 60 hand-labeled queries (5 task types × 3 complexity levels): judge pass rate, answer latency p50/p95, tokens, estimated cost, classifier accuracy and confusion matrix |
+| `python bench/run_benchmark.py --run-name outage --modes router --fail-provider gemini` | Success rate with the cross-provider fallback vs without it while one provider is down |
+| `python bench/run_cache_benchmark.py --run-name cache` | Hit rate on a repeated-query workload (Zipf popularity), hit vs miss latency, LLM calls and tokens avoided |
+| `python bench/run_security_benchmark.py` | Offline: attack detection rate and false-positive rate of the input filter |
+| `python bench/judge_agreement.py export bench/results/main` then `score` | Agreement and Cohen's kappa between the LLM judge and your own pass/fail labels |
+
+Notes for free tiers:
+
+- The default `--delay` of 4 seconds between requests keeps the scripts under per-minute limits. Requests that fail with a rate limit are retried with backoff, and how many attempts each took is recorded.
+- `run_benchmark.py` resumes when you reuse a `--run-name`, so a run can be spread across several days of quota. Use `--limit` for a quick trial.
+- Modes are interleaved per query, so every mode runs under the same rate-limit conditions.
+- The router-vs-baseline comparison only counts queries that every mode answered.
+- **Serving cost** counts the classifier and generation calls. The judge is reported separately, because in the baselines it is only there to measure quality. **Answer latency** leaves out the judge step; **end-to-end latency** includes it.
+- The judge is `gpt-oss-20b`, which is also one of the models it grades. Use `judge_agreement.py` to check how far its verdicts match yours.
 
 ## Security Notes
 
@@ -254,8 +317,18 @@ This is a first layer of screening, not a comprehensive prompt-injection or appl
 ```text
 Agentic-LLM-Router/
 ├── app/
-│   ├── main.py             # FastAPI application and POST /route endpoint
-│   └── graph.py            # LangGraph workflow, routing, evaluation, and Redis cache
+│   ├── main.py             # FastAPI app: POST /route, GET /metrics
+│   ├── graph.py            # LangGraph workflow, routing, evaluation, Redis cache, usage tracking
+│   ├── security.py         # Input screening rules
+│   ├── pricing.py          # List prices used for cost estimates
+│   └── stats.py            # Redis counters behind GET /metrics
+├── bench/
+│   ├── data/               # Labeled eval queries and security test cases
+│   ├── run_benchmark.py    # Router vs single-model baselines, fallback under outage
+│   ├── run_cache_benchmark.py
+│   ├── run_security_benchmark.py
+│   ├── judge_agreement.py
+│   └── report.py           # Builds summary.md / summary.json from a run
 ├── Dockerfile              # FastAPI application image
 ├── docker-compose.yml      # FastAPI and Redis services
 ├── .dockerignore           # Files excluded from Docker build context

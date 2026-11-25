@@ -1,0 +1,26 @@
+{
+  "requests": 80,
+  "succeeded": 79,
+  "unique_queries": 14,
+  "hits": 61,
+  "hit_rate": 0.7722,
+  "max_possible_hit_rate": 0.825,
+  "repeat_misses_not_cached": 5,
+  "latency_ms": {
+    "hit": {
+      "avg": 5.208852459016393,
+      "p50": 4.99,
+      "p95": 7.68
+    },
+    "miss": {
+      "avg": 5459.218333333334,
+      "p50": 3259.48,
+      "p95": 21013.13
+    }
+  },
+  "llm_calls_made": 66,
+  "llm_calls_without_cache_est": 267.7,
+  "llm_calls_avoided_pct": 75.3,
+  "tokens_avoided_est": 138006,
+  "est_cost_avoided_usd": 0.043438
+}

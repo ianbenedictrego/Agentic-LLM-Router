@@ -1,0 +1,177 @@
+{
+  "modes": {
+    "always_gemini": {
+      "requests": 30,
+      "succeeded": 11,
+      "success_rate": 0.3667,
+      "quality": {
+        "judged": 10,
+        "pass_rate": 1.0,
+        "good_rate": 1.0
+      },
+      "answer_latency_ms": {
+        "avg": 11273.35,
+        "p50": 3233.55,
+        "p95": 34950.01
+      },
+      "e2e_latency_ms": {
+        "avg": 11640.656363636364,
+        "p50": 3478.51,
+        "p95": 35348.48
+      },
+      "tokens_per_query": {
+        "serving": 155.8181818181818,
+        "total": 566.8181818181819
+      },
+      "est_cost_per_1k_queries_usd": {
+        "serving": 0.3601,
+        "total": 0.414
+      },
+      "llm_calls_per_request": 1.3666666666666667,
+      "model_mix": {
+        "gemini-3.5-flash-lite": 11
+      },
+      "reliability": {
+        "fallbacks": 0,
+        "fallback_saves": 0,
+        "fallback_reasons": {},
+        "retries": 0,
+        "rate_limited_llm_calls": 1,
+        "requests_needing_client_retry": 0
+      }
+    },
+    "always_groq": {
+      "requests": 30,
+      "succeeded": 28,
+      "success_rate": 0.9333,
+      "quality": {
+        "judged": 17,
+        "pass_rate": 0.9412,
+        "good_rate": 0.8824
+      },
+      "answer_latency_ms": {
+        "avg": 1407.2353571428573,
+        "p50": 1305.13,
+        "p95": 2552.91
+      },
+      "e2e_latency_ms": {
+        "avg": 1727.6846428571428,
+        "p50": 1653.35,
+        "p95": 3036.68
+      },
+      "tokens_per_query": {
+        "serving": 1166.2857142857142,
+        "total": 1614.392857142857
+      },
+      "est_cost_per_1k_queries_usd": {
+        "serving": 0.3293,
+        "total": 0.3899
+      },
+      "llm_calls_per_request": 1.9333333333333333,
+      "model_mix": {
+        "openai/gpt-oss-20b": 28
+      },
+      "reliability": {
+        "fallbacks": 0,
+        "fallback_saves": 0,
+        "fallback_reasons": {},
+        "retries": 0,
+        "rate_limited_llm_calls": 11,
+        "requests_needing_client_retry": 1
+      }
+    },
+    "router": {
+      "requests": 30,
+      "succeeded": 30,
+      "success_rate": 1.0,
+      "quality": {
+        "judged": 23,
+        "pass_rate": 1.0,
+        "good_rate": 1.0
+      },
+      "answer_latency_ms": {
+        "avg": 5893.75,
+        "p50": 3307.86,
+        "p95": 18827.42
+      },
+      "e2e_latency_ms": {
+        "avg": 6292.104,
+        "p50": 3804.66,
+        "p95": 19548.98
+      },
+      "tokens_per_query": {
+        "serving": 1780.7,
+        "total": 2644.3333333333335
+      },
+      "est_cost_per_1k_queries_usd": {
+        "serving": 0.7843,
+        "total": 0.879
+      },
+      "llm_calls_per_request": 3.6,
+      "model_mix": {
+        "openai/gpt-oss-20b": 26,
+        "gemini-3.5-flash-lite": 4
+      },
+      "reliability": {
+        "fallbacks": 17,
+        "fallback_saves": 17,
+        "fallback_reasons": {
+          "unavailable": 17
+        },
+        "retries": 1,
+        "rate_limited_llm_calls": 7,
+        "requests_needing_client_retry": 0,
+        "success_rate_without_fallback": 0.4333
+      }
+    }
+  },
+  "comparisons": {
+    "router_vs_always_groq": {
+      "paired_queries": 28,
+      "serving_cost_change_pct": 81.5,
+      "serving_tokens_change_pct": 46.6,
+      "answer_latency_p50_change_pct": 137.1,
+      "answer_latency_p95_change_pct": 608.7,
+      "answer_latency_avg_change_pct": 282.6,
+      "pass_rate_router": 1.0,
+      "pass_rate_baseline": 0.9412,
+      "pass_rate_delta_pp": 5.9
+    },
+    "router_vs_always_gemini": {
+      "paired_queries": 11,
+      "serving_cost_change_pct": -38.9,
+      "serving_tokens_change_pct": 399.2,
+      "answer_latency_p50_change_pct": -64.5,
+      "answer_latency_p95_change_pct": -67.5,
+      "answer_latency_avg_change_pct": -73.1,
+      "pass_rate_router": 1.0,
+      "pass_rate_baseline": 1.0,
+      "pass_rate_delta_pp": 0.0
+    }
+  },
+  "classifier": {
+    "n": 30,
+    "task_type_accuracy": 0.8333,
+    "complexity_accuracy": 0.8667,
+    "joint_accuracy": 0.7333,
+    "task_type_confusion": {
+      "factual": {
+        "factual": 6
+      },
+      "reasoning": {
+        "factual": 2,
+        "reasoning": 4
+      },
+      "code": {
+        "code": 6
+      },
+      "creative": {
+        "creative": 6
+      },
+      "conversational": {
+        "conversational": 3,
+        "reasoning": 3
+      }
+    }
+  }
+}

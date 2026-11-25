@@ -1,0 +1,60 @@
+{"id": "f-l-1", "task_type": "factual", "complexity": "low", "query": "What is the capital of Australia?"}
+{"id": "f-l-2", "task_type": "factual", "complexity": "low", "query": "How many bytes are in a kilobyte?"}
+{"id": "f-l-3", "task_type": "factual", "complexity": "low", "query": "Who wrote the novel Pride and Prejudice?"}
+{"id": "f-l-4", "task_type": "factual", "complexity": "low", "query": "What is the chemical symbol for gold?"}
+{"id": "f-m-1", "task_type": "factual", "complexity": "medium", "query": "Explain how HTTPS protects data in transit, including the role of TLS certificates."}
+{"id": "f-m-2", "task_type": "factual", "complexity": "medium", "query": "What causes the seasons on Earth, and why is it not the distance from the Sun?"}
+{"id": "f-m-3", "task_type": "factual", "complexity": "medium", "query": "Describe how vaccines train the immune system to recognize a pathogen."}
+{"id": "f-m-4", "task_type": "factual", "complexity": "medium", "query": "What is the difference between RAM and SSD storage, and how does each affect performance?"}
+{"id": "f-h-1", "task_type": "factual", "complexity": "high", "query": "Give a detailed explanation of how the Raft consensus algorithm handles leader election, log replication and safety during network partitions."}
+{"id": "f-h-2", "task_type": "factual", "complexity": "high", "query": "Explain in depth how CRISPR-Cas9 edits genes, including guide RNA design, the DNA repair pathways involved, and the main sources of off-target effects."}
+{"id": "f-h-3", "task_type": "factual", "complexity": "high", "query": "Provide a thorough explanation of how the transformer architecture works, covering self-attention, multi-head attention, positional encodings, and layer normalization."}
+{"id": "f-h-4", "task_type": "factual", "complexity": "high", "query": "Explain in detail how monetary policy transmission works, from a central bank rate change to its effects on lending, asset prices, exchange rates and inflation."}
+{"id": "r-l-1", "task_type": "reasoning", "complexity": "low", "query": "If I have 3 apples and buy 2 more, then eat 1, how many apples do I have?"}
+{"id": "r-l-2", "task_type": "reasoning", "complexity": "low", "query": "Which is heavier, a kilogram of feathers or a kilogram of iron?"}
+{"id": "r-l-3", "task_type": "reasoning", "complexity": "low", "query": "If today is Monday, what day will it be in 10 days?"}
+{"id": "r-l-4", "task_type": "reasoning", "complexity": "low", "query": "A shirt costs $20 and is 25% off. What is the sale price?"}
+{"id": "r-m-1", "task_type": "reasoning", "complexity": "medium", "query": "Should a small startup use PostgreSQL or MongoDB for an app that stores user profiles and orders? Compare the trade-offs."}
+{"id": "r-m-2", "task_type": "reasoning", "complexity": "medium", "query": "A train leaves at 9:00 at 60 km/h and another leaves the same station at 10:00 at 90 km/h on the same track. When does the second catch up?"}
+{"id": "r-m-3", "task_type": "reasoning", "complexity": "medium", "query": "Compare renting versus buying a home for someone who expects to move cities within three years."}
+{"id": "r-m-4", "task_type": "reasoning", "complexity": "medium", "query": "What are the pros and cons of remote work for a 20-person software team, and what would you recommend?"}
+{"id": "r-h-1", "task_type": "reasoning", "complexity": "high", "query": "Compare the advantages and disadvantages of microservices versus a monolithic architecture, and recommend which approach is better for a high-traffic e-commerce application."}
+{"id": "r-h-2", "task_type": "reasoning", "complexity": "high", "query": "Design a migration plan to move a legacy on-premise payment system to the cloud with zero downtime, covering data migration, rollback strategy, and compliance risks."}
+{"id": "r-h-3", "task_type": "reasoning", "complexity": "high", "query": "Analyze the trade-offs between strong consistency and availability for a globally distributed banking ledger, and propose an architecture that balances them."}
+{"id": "r-h-4", "task_type": "reasoning", "complexity": "high", "query": "A city must choose between expanding its subway, building bus rapid transit, or adding bike lanes with a fixed budget. Build a multi-criteria analysis and recommend an option."}
+{"id": "c-l-1", "task_type": "code", "complexity": "low", "query": "How do I reverse a string in Python?"}
+{"id": "c-l-2", "task_type": "code", "complexity": "low", "query": "Write a JavaScript function that returns the larger of two numbers."}
+{"id": "c-l-3", "task_type": "code", "complexity": "low", "query": "What is the SQL query to select all rows from a table named users?"}
+{"id": "c-l-4", "task_type": "code", "complexity": "low", "query": "How do I create a new git branch and switch to it?"}
+{"id": "c-m-1", "task_type": "code", "complexity": "medium", "query": "Write a Python function that checks whether a string is a valid palindrome, ignoring punctuation and case, with a few unit tests."}
+{"id": "c-m-2", "task_type": "code", "complexity": "medium", "query": "Write a SQL query that returns the top 3 customers by total order value in the last 30 days, given customers and orders tables."}
+{"id": "c-m-3", "task_type": "code", "complexity": "medium", "query": "Implement a debounce function in TypeScript and explain how it works."}
+{"id": "c-m-4", "task_type": "code", "complexity": "medium", "query": "My Python script raises 'RecursionError: maximum recursion depth exceeded' when computing Fibonacci numbers recursively. How do I fix it?"}
+{"id": "c-h-1", "task_type": "code", "complexity": "high", "query": "Implement a thread-safe LRU cache in Python with O(1) get and put, TTL-based expiry, and unit tests covering concurrency."}
+{"id": "c-h-2", "task_type": "code", "complexity": "high", "query": "Design and implement a rate limiter middleware for FastAPI using the token bucket algorithm backed by Redis, supporting per-user limits."}
+{"id": "c-h-3", "task_type": "code", "complexity": "high", "query": "Write a Python implementation of Dijkstra's algorithm with a binary heap, then extend it to A* search with a pluggable heuristic, and analyze its complexity."}
+{"id": "c-h-4", "task_type": "code", "complexity": "high", "query": "Build a minimal async job queue in Python with retries, exponential backoff, dead-letter handling and graceful shutdown."}
+{"id": "cr-l-1", "task_type": "creative", "complexity": "low", "query": "Suggest a name for a coffee shop."}
+{"id": "cr-l-2", "task_type": "creative", "complexity": "low", "query": "Write a one-line slogan for a recycling campaign."}
+{"id": "cr-l-3", "task_type": "creative", "complexity": "low", "query": "Give me a rhyming word for 'moon'."}
+{"id": "cr-l-4", "task_type": "creative", "complexity": "low", "query": "Write a haiku about rain."}
+{"id": "cr-m-1", "task_type": "creative", "complexity": "medium", "query": "Write a short story of about 200 words about a robot learning to paint."}
+{"id": "cr-m-2", "task_type": "creative", "complexity": "medium", "query": "Brainstorm ten creative names and taglines for a fitness app aimed at busy parents."}
+{"id": "cr-m-3", "task_type": "creative", "complexity": "medium", "query": "Write a persuasive product description for a reusable water bottle that keeps drinks cold for 24 hours."}
+{"id": "cr-m-4", "task_type": "creative", "complexity": "medium", "query": "Write a limerick about a programmer who never writes tests."}
+{"id": "cr-h-1", "task_type": "creative", "complexity": "high", "query": "Write the opening chapter (about 600 words) of a science-fiction novel set on a generation ship, introducing two characters with conflicting goals."}
+{"id": "cr-h-2", "task_type": "creative", "complexity": "high", "query": "Create a complete brand identity concept for an eco-friendly sneaker company: name, mission statement, tone of voice, tagline, and a launch campaign idea."}
+{"id": "cr-h-3", "task_type": "creative", "complexity": "high", "query": "Write a three-act outline for a mystery screenplay with a twist ending, including character arcs for the detective and the antagonist."}
+{"id": "cr-h-4", "task_type": "creative", "complexity": "high", "query": "Write a sonnet in iambic pentameter about artificial intelligence, then explain the rhyme scheme and imagery you used."}
+{"id": "cv-l-1", "task_type": "conversational", "complexity": "low", "query": "Hi, how are you today?"}
+{"id": "cv-l-2", "task_type": "conversational", "complexity": "low", "query": "Thanks for your help!"}
+{"id": "cv-l-3", "task_type": "conversational", "complexity": "low", "query": "Good morning!"}
+{"id": "cv-l-4", "task_type": "conversational", "complexity": "low", "query": "What's your favorite color?"}
+{"id": "cv-m-1", "task_type": "conversational", "complexity": "medium", "query": "I'm feeling a bit stressed about my exams next week. Any advice to stay calm?"}
+{"id": "cv-m-2", "task_type": "conversational", "complexity": "medium", "query": "I just moved to a new city and don't know anyone. How can I make friends?"}
+{"id": "cv-m-3", "task_type": "conversational", "complexity": "medium", "query": "Can you help me think through whether I should take up running or swimming as a new hobby?"}
+{"id": "cv-m-4", "task_type": "conversational", "complexity": "medium", "query": "My friend forgot my birthday and I feel hurt. How should I bring it up with them?"}
+{"id": "cv-h-1", "task_type": "conversational", "complexity": "high", "query": "I've been offered a job abroad with higher pay, but my partner has a stable career here and my parents are getting older. Can you help me talk through this decision from every angle?"}
+{"id": "cv-h-2", "task_type": "conversational", "complexity": "high", "query": "I'm a mid-career accountant thinking about switching to software engineering. Walk me through how I should evaluate this, what the risks are, and how I'd plan the transition over two years."}
+{"id": "cv-h-3", "task_type": "conversational", "complexity": "high", "query": "My co-founder and I disagree on whether to raise venture capital or bootstrap. Help me structure a conversation with them that covers our goals, risk tolerance and long-term vision."}
+{"id": "cv-h-4", "task_type": "conversational", "complexity": "high", "query": "I keep procrastinating on my thesis even though I care about it. Help me understand why this might be happening and build a realistic plan to get back on track."}
